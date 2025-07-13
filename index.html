@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>NequiBotGV - Generador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;   
+      font-family: 'Manrope', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    .formulario {
+      background: #111;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 128, 255, 0.4);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .titulo {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #0044cc, #00bfff);
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      margin-bottom: 20px;
+      text-shadow: 0px 0px 15px rgba(0, 191, 255, 0.8);
+    }
+    .input-campo {
+      width: 90%;
+      padding: 14px;
+      margin: 12px 0;
+      border: 1px solid #444;
+      border-radius: 12px;
+      font-size: 16px;
+      background: #222;
+      color: #fff;
+      font-family: 'Manrope', sans-serif;
+    }
+    .boton {
+      margin-top: 10px;
+      padding: 14px;
+      width: 90%;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      color: #fff;
+    }
+    .boton:hover { opacity: 0.9; }
+    .boton-whatsapp { background: linear-gradient(90deg, #00c853, #00e676); }
+    .boton-clave { background: linear-gradient(90deg, #cc0000, #ff1744); }
+    .boton-cambiar { background: linear-gradient(90deg, #6a1b9a, #8e24aa); }
+    .boton-descargar { background: linear-gradient(90deg, #1976d2, #2196f3); }
+    .container {
+      position: relative;
+      width: 100%;
+      max-width: 390px;
+      margin: 20px auto;
+      background: #fff;
+      overflow: visible;
+      display: none;
+      transform-origin: top left;
+      transform: scale(1);
+    }
+    .container img {
+      width: 100%;
+      display: block;
+    }
+    .input-overlay {
+      position: absolute;
+      background: transparent;
+      border: none;
+      font-size: 15px;
+      color: #3C114B;
+      font-weight: 500;
+      text-align: left;
+      font-family: 'Manrope', sans-serif;
+      outline: none;
+      pointer-events: none;
+      line-height: 1.4;
+      padding-bottom: 3px;
+      padding-top: 1px;
+      height: auto;
+    }
+    /* Posiciones relativas sobre imagen de 390px de ancho */
+    #nombre { 
+      top: calc(413px * var(--escala)); 
+      left: calc((17px + 20px) * var(--escala)); 
+      width: calc(280px * var(--escala));
+      line-height: 1.6;
+      padding-bottom: 5px;
+    }
+    #valor { 
+      top: calc(463px * var(--escala)); 
+      left: calc((17px + 20px) * var(--escala)); 
+      width: calc(280px * var(--escala)); 
+    }
+    #fecha { 
+      top: calc((510px) * var(--escala)); 
+      left: calc((40px) * var(--escala)); 
+      width: calc(280px * var(--escala)); 
+    }
+    #nequi { 
+      top: calc((602px) * var(--escala)); 
+      left: calc((17px + 20px) * var(--escala)); 
+      width: calc(280px * var(--escala)); 
+    }
+    #referencia { 
+      top: calc((650px) * var(--escala)); 
+      left: calc((17px + 20px) * var(--escala)); 
+      width: calc(280px * var(--escala)); 
+    }
+    #bancolombia { 
+      top: calc((555px) * var(--escala)); 
+      left: calc((40px) * var(--escala)); 
+      width: calc(280px * var(--escala)); 
+    }
+    #disponible { 
+      top: calc((700px) * var(--escala)); 
+      left: calc((40px) * var(--escala)); 
+      width: calc(280px * var(--escala)); 
+    }
+    /* Botón de pantalla completa */
+    #verPantallaCompleta {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 20px;
+      font-size: 16px;
+      background: #1e88e5;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: bold;
+      z-index: 9999;
+    }
+    /* Indicador de carga */
+    #cargando {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      display: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+<div class="formulario" id="pantalla">
+  <div class="titulo">NequiBotGV</div>
+  <button id="whatsapp" class="boton boton-whatsapp">¿No tienes clave? Contáctanos</button>
+  <button id="clave-ingreso" class="boton boton-clave">Ingresar Clave</button>
+  <button id="cambiar-clave-boton" class="boton boton-cambiar">Cambiar Clave</button>
+  <div id="contenido-oculto" style="display: none;">
+    <input type="text" id="input-nombre" class="input-campo" placeholder="Nombre completo (2 nombres y 2 apellidos)">
+    <input type="text" id="input-nequi" class="input-campo" placeholder="Número Bancolombia (15 dígitos)" maxlength="15">
+    <input type="text" id="input-valor" class="input-campo" placeholder="Valor en $">
+    <select id="formato" class="input-campo">
+      <option value="png">Formato: PNG</option>
+      <option value="jpg">Formato: JPG</option>
+    </select>
+    <button id="generar" class="boton boton-descargar">Generar Comprobante</button>
+    <div id="admin-panel" style="display: none;">
+      <input type="text" id="nueva-clave" class="input-campo" placeholder="Nueva clave de acceso">
+      <button id="guardar-nueva-clave" class="boton">Guardar Nueva Clave</button>
+    </div>
+  </div>
+</div>
+<div class="container" id="captura">
+  <img src="comprobante_base.png" alt="Fondo" id="imagen-fondo">
+  <input type="text" id="nombre" class="input-overlay" readonly>
+  <input type="text" id="valor" class="input-overlay" readonly>
+  <div id="fecha" class="input-overlay"></div>
+  <input type="text" id="nequi" class="input-overlay" readonly>
+  <input type="text" id="referencia" class="input-overlay" readonly>
+  <div id="bancolombia" class="input-overlay">Bancolombia</div>
+  <div id="disponible" class="input-overlay">Disponible</div>
+</div>
+<button id="verPantallaCompleta">Ver en Pantalla Completa</button>
+<div id="cargando">Cargando...</div>
+<script src=" https://html2canvas.hertzen.com/dist/html2canvas.min.js "></script>   
+<script>
+let claveAcceso = "32097221381";
+const claveAdmin = "1395";
+
+// Eventos principales
+document.getElementById('whatsapp').addEventListener('click', () => {
+  window.open('https://wa.me/573178793834?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20la%20clave%20de%20NequiBotGV.', '_blank');
+});
+
+document.getElementById('clave-ingreso').addEventListener('click', () => {
+  const clave = prompt("Ingrese la clave de acceso:");
+  if (clave === claveAdmin) {
+    document.getElementById('admin-panel').style.display = 'block';
+    mostrarFormulario();
+  } else if (clave === claveAcceso) {
+    mostrarFormulario();
+  } else {
+    alert("Clave incorrecta. Acceso denegado.");
+  }
+});
+
+document.getElementById('cambiar-clave-boton').addEventListener('click', () => {
+  const clave = prompt("Ingrese la clave de administrador:");
+  if (clave === claveAdmin) {
+    document.getElementById('admin-panel').style.display = 'block';
+    mostrarFormulario();
+  } else {
+    alert("Clave de administrador incorrecta.");
+  }
+});
+
+function mostrarFormulario() {
+  document.getElementById('contenido-oculto').style.display = 'block';
+  document.getElementById('whatsapp').style.display = 'none';
+  document.getElementById('clave-ingreso').style.display = 'none';
+  document.getElementById('cambiar-clave-boton').style.display = 'none';
+}
+
+document.getElementById('guardar-nueva-clave').addEventListener('click', () => {
+  const nueva = document.getElementById('nueva-clave').value.trim();
+  if (nueva) {
+    claveAcceso = nueva;
+    alert("Clave de acceso actualizada exitosamente.");
+    document.getElementById('nueva-clave').value = "";
+  }
+});
+
+document.getElementById('generar').addEventListener('click', async () => {
+  if (!validarEntradas()) return;
+
+  // Mostrar indicador de carga
+  const cargando = document.getElementById('cargando');
+  cargando.style.display = 'block';
+
+  // Esperar a que la fuente esté completamente cargada
+  await new Promise(resolve => {
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(resolve);
+    } else {
+      setTimeout(resolve, 1000); // Fallback si no hay soporte para FontFaceSet
+    }
+  });
+
+  setTimeout(() => {
+    const container = document.getElementById('captura');
+    const img = document.querySelector('#captura img');   
+
+    // Ocultar indicador de carga
+    cargando.style.display = 'none';
+
+    // Ajustar escala según el tamaño de la pantalla
+    const escala = Math.min(window.innerWidth / 390, 1);
+    container.style.setProperty('--escala', escala);
+    document.getElementById('pantalla').style.display = 'none';
+    container.style.display = 'block';
+
+    // Asignar valores a los campos superpuestos
+    document.getElementById('nombre').value = document.getElementById('input-nombre').value;
+    document.getElementById('valor').value = formatValor(document.getElementById('input-valor').value);
+    generarFecha();
+    document.getElementById('nequi').value = document.getElementById('input-nequi').value;
+    generarReferencia();
+
+    const formato = document.getElementById('formato').value;
+
+    // Verificar si la imagen de fondo está completamente cargada
+    if (!img.complete || !img.naturalWidth) {
+      alert("La imagen de fondo no se ha cargado completamente. Inténtalo nuevamente.");
+      return;
+    }
+
+    // Mostrar el botón de pantalla completa
+    document.getElementById('verPantallaCompleta').style.display = 'block';
+
+    // Descargar automáticamente el comprobante
+    descargarComprobante(formato);
+  }, 1000); // Retraso de 1 segundo
+});
+
+document.getElementById('verPantallaCompleta').addEventListener('click', () => {
+  const contenedor = document.getElementById('captura');
+  const btn = document.getElementById('verPantallaCompleta');
+  if (!document.fullscreenElement) {
+    if (contenedor.requestFullscreen) {
+      contenedor.requestFullscreen();
+    } else if (contenedor.webkitRequestFullscreen) {
+      contenedor.webkitRequestFullscreen();
+    } else if (contenedor.msRequestFullscreen) {
+      contenedor.msRequestFullscreen();
+    }
+    const escala = Math.min(window.innerWidth / 390, 1);
+    contenedor.style.transform = `scale(${1 / escala})`;
+    btn.textContent = "Salir de Pantalla Completa";
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+    contenedor.style.transform = 'scale(1)';
+    btn.textContent = "Ver en Pantalla Completa";
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  const contenedor = document.getElementById('captura');
+  const btn = document.getElementById('verPantallaCompleta');
+  if (!document.fullscreenElement) {
+    contenedor.style.transform = 'scale(1)';
+    btn.textContent = "Ver en Pantalla Completa";
+  }
+});
+
+// Validaciones y utilidades
+function validarEntradas() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const nequi = document.getElementById('input-nequi').value.trim();
+  const valor = document.getElementById('input-valor').value.trim();
+  if (!nombre || !nequi || !valor) {
+    alert("Todos los campos son obligatorios.");
+    return false;
+  }
+  if (isNaN(valor.replace(/\D/g, ''))) {
+    alert("El valor debe ser un número válido.");
+    return false;
+  }
+  if (nequi.length < 10 || nequi.length > 15) {
+    alert("El número Nequi debe tener entre 10 y 15 dígitos.");
+    return false;
+  }
+  return true;
+}
+
+function generarFecha() {
+  const fecha = new Date();
+  const dias = fecha.getDate();
+  const mes = fecha.toLocaleString('es-ES', { month: 'long' });
+  const year = fecha.getFullYear();
+  let horas = fecha.getHours();
+  let minutos = fecha.getMinutes().toString().padStart(2, '0');
+  const ampm = horas >= 12 ? 'P. M.' : 'A. M.';
+  horas = horas % 12 || 12;
+  const fechaFormateada = `${dias} de ${mes.charAt(0).toUpperCase() + mes.slice(1)} de ${year}, ${horas}:${minutos} ${ampm}`;
+  document.getElementById('fecha').innerHTML = fechaFormateada;
+}
+
+function generarReferencia() {
+  document.getElementById('referencia').value = 'M' + Math.floor(1e7 + Math.random() * 9e7);
+}
+
+function formatValor(valor) {
+  valor = valor.replace(/\D/g, '');
+  if (!valor) return "$ 0,00";
+  return `$ ${valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},00`;
+}
+
+function descargarComprobante(formato) {
+  const img = document.querySelector('#captura img');
+  if (!img.complete || !img.naturalWidth) {
+    alert("La imagen de fondo no se ha cargado completamente. Inténtalo nuevamente.");
+    return;
+  }
+  html2canvas(document.getElementById('captura'), {
+    scale: 6,
+    logging: false,
+    useCORS: true,
+    allowTaint: false,
+    scrollY: -window.scrollY,
+    scrollX: -window.scrollX
+  }).then(canvas => {
+    try {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL(`image/${formato}`);
+      link.download = `comprobante.${formato}`;
+      if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+        window.open(link.href, '_blank');
+      } else {
+        link.click();
+      }
+    } catch (error) {
+      console.error("Error al descargar el comprobante:", error);
+      alert("Ocurrió un error al generar el comprobante. Inténtalo nuevamente.");
+    }
+  });
+}
+</script>
+</body>
+</html>
